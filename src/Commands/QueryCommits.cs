@@ -12,7 +12,7 @@ namespace SourceGit.Commands
         {
             WorkingDirectory = repo;
             Context = repo;
-            Args = $"log --no-show-signature --decorate=full --format=%H%x00%P%x00%D%x00%aN±%aE%x00%at%x00%cN±%cE%x00%ct%x00%s {limits}";
+            Args = "log -l 10 --template \"{separate('\\x00', node, revset('parents(%d)', rev) % '{node}', ifcontains('tip', tags, branch, ' '), separate('±', person(author), email(author)), date(localdate(date), '%s'), separate('±', person(author), email(author)), date(localdate(date), '%s'), firstline(desc))}\\n\"";
             _markMerged = markMerged;
         }
 
@@ -72,7 +72,7 @@ namespace SourceGit.Commands
 
                     var commit = new Models.Commit() { SHA = parts[0] };
                     commit.ParseParents(parts[1]);
-                    commit.ParseDecorators(parts[2]);
+                    commit.ParseBranch(parts[2]);
                     commit.Author = Models.User.FindOrAdd(parts[3]);
                     commit.AuthorTime = ulong.Parse(parts[4]);
                     commit.Committer = Models.User.FindOrAdd(parts[5]);
