@@ -39,7 +39,7 @@ namespace SourceGit.Commands
 
         public async Task<bool> ExecAsync()
         {
-            Log?.AppendLine($"$ git {Args}\n");
+            Log?.AppendLine($"$ hg {Args}\n");
 
             var errs = new List<string>();
 
@@ -190,27 +190,7 @@ namespace SourceGit.Commands
                 start.Environment.Add("LC_ALL", "C");
             }
 
-            var builder = new StringBuilder(2048);
-            builder
-                .Append("--no-pager -c core.quotepath=off -c credential.helper=")
-                .Append(Native.OS.CredentialHelper)
-                .Append(' ');
-
-            switch (Editor)
-            {
-                case EditorType.CoreEditor:
-                    builder.Append($"""-c core.editor="\"{selfExecFile}\" --core-editor" """);
-                    break;
-                case EditorType.RebaseEditor:
-                    builder.Append($"""-c core.editor="\"{selfExecFile}\" --rebase-message-editor" -c sequence.editor="\"{selfExecFile}\" --rebase-todo-editor" -c rebase.abbreviateCommands=true """);
-                    break;
-                default:
-                    builder.Append("-c core.editor=true ");
-                    break;
-            }
-
-            builder.Append(Args);
-            start.Arguments = builder.ToString();
+            start.Arguments = Args;//builder.ToString();
 
             // Working directory
             if (!string.IsNullOrEmpty(WorkingDirectory))

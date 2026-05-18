@@ -7,7 +7,7 @@ namespace SourceGit.Commands
         public QueryRepositoryRootPath(string path)
         {
             WorkingDirectory = path;
-            Args = "rev-parse --show-toplevel";
+            Args = "root";
         }
 
         public Result GetResult()

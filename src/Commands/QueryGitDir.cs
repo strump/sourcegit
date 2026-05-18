@@ -7,7 +7,7 @@ namespace SourceGit.Commands
         public QueryGitDir(string workDir)
         {
             WorkingDirectory = workDir;
-            Args = "rev-parse --git-dir";
+            Args = "root -T \"{hgpath}\"";
         }
 
         public string GetResult()

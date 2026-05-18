@@ -398,28 +398,12 @@ namespace SourceGit.ViewModels
 
         private string GetRepositoryGitDir(string repo)
         {
-            var fullpath = Path.Combine(repo, ".git");
+            var fullpath = Path.Combine(repo, ".hg");
             if (Directory.Exists(fullpath))
             {
-                if (Directory.Exists(Path.Combine(fullpath, "refs")) &&
-                    Directory.Exists(Path.Combine(fullpath, "objects")) &&
-                    File.Exists(Path.Combine(fullpath, "HEAD")))
+                if (Directory.Exists(Path.Combine(fullpath, "store")) &&
+                    File.Exists(Path.Combine(fullpath, "hgrc")))
                     return fullpath;
-
-                return null;
-            }
-
-            if (File.Exists(fullpath))
-            {
-                var redirect = File.ReadAllText(fullpath).Trim();
-                if (redirect.StartsWith("gitdir: ", StringComparison.Ordinal))
-                    redirect = redirect.Substring(8);
-
-                if (!Path.IsPathRooted(redirect))
-                    redirect = Path.GetFullPath(Path.Combine(repo, redirect));
-
-                if (Directory.Exists(redirect))
-                    return redirect;
 
                 return null;
             }

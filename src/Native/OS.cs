@@ -303,7 +303,7 @@ namespace SourceGit.Native
 
             var start = new ProcessStartInfo();
             start.FileName = _gitExecutable;
-            start.Arguments = "--version";
+            start.Arguments = "version -T \"{ver}\"";
             start.UseShellExecute = false;
             start.CreateNoWindow = true;
             start.RedirectStandardOutput = true;
@@ -337,7 +337,7 @@ namespace SourceGit.Native
             }
         }
 
-        [GeneratedRegex(@"^git version[\s\w]*(\d+)\.(\d+)[\.\-](\d+).*$")]
+        [GeneratedRegex(@"^(\d+)\.(\d+)[\.\-](\d+).*$")]
         private static partial Regex REG_GIT_VERSION();
 
         private static IBackend _backend = null;
