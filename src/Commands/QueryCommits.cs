@@ -12,7 +12,16 @@ namespace SourceGit.Commands
         {
             WorkingDirectory = repo;
             Context = repo;
-            Args = "log -l 10 --template \"{separate('\\x00', node, revset('parents(%d)', rev) % '{node}', ifcontains('tip', tags, branch, ' '), separate('±', person(author), email(author)), date(localdate(date), '%s'), separate('±', person(author), email(author)), date(localdate(date), '%s'), firstline(desc))}\\n\"";
+            Args = "log -l 10 --template \"{separate('\\x00', " + 
+                   "node, " + // Commit Hash
+                   "revset('parents(%d)', rev) % '{node}', " + // List of parent hashes
+                   "ifcontains('tip', tags, branch, ' '), " + // Branch name if commit is a tip of a branch. In Mercurial all commits have a branch associated.
+                   "separate('±', person(author), email(author)), " + // Author name with email separated with '±' symbol
+                   "date(localdate(date), '%s'), " + // Commit timestamp in local timezome
+                   "separate('±', person(author), email(author)), " + // There is not such thing as committer in Mercurial. So copy author here
+                   "date(localdate(date), '%s'), "+ // Commit timestamp is the same as author timestamp in Mercurial
+                   "firstline(desc)" + // First line of commit message
+                   ")}\\n\""; // First
             _markMerged = markMerged;
         }
 
