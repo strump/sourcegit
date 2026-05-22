@@ -8,7 +8,7 @@ namespace SourceGit.Commands
         {
             WorkingDirectory = repo;
             Context = repo;
-            Args = "branch --show-current";
+            Args = "branch";
         }
 
         public string GetResult()

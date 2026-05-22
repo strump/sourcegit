@@ -1208,8 +1208,8 @@ namespace SourceGit.ViewModels
 
                 var builder = new StringBuilder();
                 builder
-                    .Append('-').Append(Preferences.Instance.MaxHistoryCommits).Append(' ')
-                    .Append(_uiStates.BuildHistoryParams());
+                    .Append("-l ").Append(Preferences.Instance.MaxHistoryCommits).Append(' ');
+                    //.Append(_uiStates.BuildHistoryParams());
 
                 var commits = await new Commands.QueryCommits(FullPath, builder.ToString()).GetResultAsync().ConfigureAwait(false);
                 var graph = Models.CommitGraph.Parse(commits, _uiStates.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly));
