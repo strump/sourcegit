@@ -6,16 +6,12 @@ namespace SourceGit.Commands
 {
     public class QueryBranches : Command
     {
-        private const string PREFIX_LOCAL = "refs/heads/";
-        private const string PREFIX_REMOTE = "refs/remotes/";
-        private const string PREFIX_DETACHED_AT = "(HEAD detached at";
-        private const string PREFIX_DETACHED_FROM = "(HEAD detached from";
-
         public QueryBranches(string repo)
         {
             WorkingDirectory = repo;
             Context = repo;
-            Args = "branch -l --all -v --format=\"%(refname)%00%(committerdate:unix)%00%(objectname)%00%(HEAD)%00%(upstream)%00%(upstream:trackshort)%00%(worktreepath)\"";
+            //Args = "branch -l --all -v --format=\"%(refname)%00%(committerdate:unix)%00%(objectname)%00%(HEAD)%00%(upstream)%00%(upstream:trackshort)%00%(worktreepath)\"";
+            Args = "branches -T \"{branch}\\x00{date(date, '%s')}\\x00{node}\\x00{ifcontains(tags, 'tip', '*', ' ')}\"";
         }
 
         public async Task<List<Models.Branch>> GetResultAsync()
@@ -63,55 +59,31 @@ namespace SourceGit.Commands
         private Models.Branch ParseLine(string line, HashSet<string> mismatched)
         {
             var parts = line.Split('\0');
-            if (parts.Length != 7)
+            if (parts.Length < 4)
                 return null;
 
             var branch = new Models.Branch();
-            var refName = parts[0];
-            if (refName.EndsWith("/HEAD", StringComparison.Ordinal))
-                return null;
-
-            branch.IsDetachedHead = refName.StartsWith(PREFIX_DETACHED_AT, StringComparison.Ordinal) ||
-                refName.StartsWith(PREFIX_DETACHED_FROM, StringComparison.Ordinal);
-
-            if (refName.StartsWith(PREFIX_LOCAL, StringComparison.Ordinal))
-            {
-                branch.Name = refName.Substring(PREFIX_LOCAL.Length);
-                branch.IsLocal = true;
-            }
-            else if (refName.StartsWith(PREFIX_REMOTE, StringComparison.Ordinal))
-            {
-                var name = refName.Substring(PREFIX_REMOTE.Length);
-                var nameParts = name.Split('/', 2);
-                if (nameParts.Length != 2)
-                    return null;
-
-                branch.Remote = nameParts[0];
-                branch.Name = nameParts[1];
-                branch.IsLocal = false;
-            }
-            else
-            {
-                branch.Name = refName;
-                branch.IsLocal = true;
-            }
+            branch.Name = parts[0];
+            branch.IsLocal = true;
 
             ulong.TryParse(parts[1], out var committerDate);
 
-            branch.FullName = refName;
+            branch.FullName = parts[0];
             branch.CommitterDate = committerDate;
             branch.Head = parts[2];
             branch.IsCurrent = parts[3] == "*";
-            branch.Upstream = parts[4];
+            //branch.Upstream = parts[4];
             branch.IsUpstreamGone = false;
 
+            /*
             if (branch.IsLocal &&
                 !string.IsNullOrEmpty(branch.Upstream) &&
                 !string.IsNullOrEmpty(parts[5]) &&
                 !parts[5].Equals("=", StringComparison.Ordinal))
                 mismatched.Add(branch.FullName);
+            */
 
-            branch.WorktreePath = parts[6];
+            //branch.WorktreePath = parts[6];
             return branch;
         }
     }

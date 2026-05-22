@@ -18,8 +18,6 @@ namespace SourceGit.Commands
                    "ifcontains('tip', tags, branch, ' '), " + // Branch name if commit is a tip of a branch. In Mercurial all commits have a branch associated.
                    "separate('±', person(author), email(author)), " + // Author name with email separated with '±' symbol
                    "date(localdate(date), '%s'), " + // Commit timestamp in local timezome
-                   "separate('±', person(author), email(author)), " + // There is not such thing as committer in Mercurial. So copy author here
-                   "date(localdate(date), '%s'), "+ // Commit timestamp is the same as author timestamp in Mercurial
                    "firstline(desc)" + // First line of commit message
                    ")}\\n\""; // First
             _markMerged = markMerged;
@@ -76,7 +74,7 @@ namespace SourceGit.Commands
                 while (await proc.StandardOutput.ReadLineAsync().ConfigureAwait(false) is { } line)
                 {
                     var parts = line.Split('\0');
-                    if (parts.Length != 8)
+                    if (parts.Length != 6)
                         continue;
 
                     var commit = new Models.Commit() { SHA = parts[0] };
@@ -84,9 +82,11 @@ namespace SourceGit.Commands
                     commit.ParseBranch(parts[2]);
                     commit.Author = Models.User.FindOrAdd(parts[3]);
                     commit.AuthorTime = ulong.Parse(parts[4]);
-                    commit.Committer = Models.User.FindOrAdd(parts[5]);
-                    commit.CommitterTime = ulong.Parse(parts[6]);
-                    commit.Subject = parts[7];
+                    // There is not such thing as committer in Mercurial. So copy author
+                    // and commit timestamp here.
+                    commit.Committer = commit.Author;
+                    commit.CommitterTime = commit.AuthorTime;
+                    commit.Subject = parts[5];
                     commits.Add(commit);
 
                     findHead |= commit.IsMerged;
