@@ -171,6 +171,33 @@ namespace SourceGit.Models
             return builder.ToString();
         }
 
+        public string ToHgArgs()
+        {
+            var builder = new StringBuilder();
+            if (!string.IsNullOrEmpty(_extra))
+                builder.Append($"{_extra} ");
+            
+            if (_revisions.Count == 2)
+            {
+                String rev1 = _revisions[0];
+                String rev2 = _revisions[1];
+                if (rev1 == rev2)
+                    builder.Append("-c ").Append(rev1).Append(' ');
+                else
+                    builder.Append("--from ").Append(rev1).Append(" --to ").Append(rev2).Append(' ');
+            }
+
+            if (_ignorePaths)
+                return builder.ToString();
+
+            //builder.Append("-- ");
+            //if (!string.IsNullOrEmpty(_orgPath))
+            //    builder.Append($"{_orgPath.Quoted()} ");
+            builder.Append("-I ").Append(_path.Quoted()).Append(' ');
+
+            return builder.ToString();
+        }
+
         private readonly Change _workingCopyChange = null;
         private readonly bool _isUnstaged = false;
         private readonly string _path;

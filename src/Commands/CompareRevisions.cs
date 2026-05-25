@@ -18,7 +18,10 @@ namespace SourceGit.Commands
             Context = repo;
 
             var based = string.IsNullOrEmpty(start) ? "-R" : start;
-            Args = $"diff --name-status {based} {end}";
+            if (start == end)
+                Args = $"status --change {start}";
+            else
+                Args = $"status --rev {based}:{end}";
         }
 
         public CompareRevisions(string repo, string start, string end, string path)
@@ -27,7 +30,10 @@ namespace SourceGit.Commands
             Context = repo;
 
             var based = string.IsNullOrEmpty(start) ? "-R" : start;
-            Args = $"diff --name-status {based} {end} -- {path.Quoted()}";
+            if (start == end)
+                Args = $"status --change {start} -I {path.Quoted()}";
+            else
+                Args = $"status --rev {based}:{end} -I {path.Quoted()}";
         }
 
         public async Task<List<Models.Change>> ReadAsync()

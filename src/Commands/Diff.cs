@@ -13,7 +13,8 @@ namespace SourceGit.Commands
         [GeneratedRegex(@"^@@ \-(\d+),?\d* \+(\d+),?\d* @@")]
         private static partial Regex REG_INDICATOR();
 
-        [GeneratedRegex(@"^index\s([0-9a-f]{6,64})\.\.([0-9a-f]{6,64})(\s[1-9]{6})?")]
+        // Parse line: diff -r 17b64c3031cb -r b3eb66da1b35 solar-system.css
+        [GeneratedRegex(@"^diff\s.*\-r\s([0-9a-f]{6,64})\s+\-r\s([0-9a-f]{6,64})\s?")]
         private static partial Regex REG_HASH_CHANGE();
 
         private const string PREFIX_LFS_NEW = "+version https://git-lfs.github.com/spec/";
@@ -28,13 +29,13 @@ namespace SourceGit.Commands
             Context = repo;
 
             var builder = new StringBuilder(256);
-            builder.Append("diff --no-color --no-ext-diff --patch ");
+            builder.Append("diff ");
             if (Models.DiffOption.IgnoreCRAtEOL)
-                builder.Append("--ignore-cr-at-eol ");
+                builder.Append("--ignore-space-at-eol ");
             if (ignoreWhitespace)
-                builder.Append("--ignore-space-change ");
-            builder.Append("--unified=").Append(unified).Append(' ');
-            builder.Append(opt.ToString());
+                builder.Append("--ignore-all-space ");
+            builder.Append("--unified ").Append(unified).Append(' ');
+            builder.Append(opt.ToHgArgs());
 
             Args = builder.ToString();
         }
